@@ -1,21 +1,155 @@
-MIT License
+import java.util.Scanner;
+import java.util.Random;
 
-Copyright (c) 2026 laxmiprasannabeemanapally-web
+public class NumberGuessingGame {
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    static Scanner scanner = new Scanner(System.in);
+    static Random random = new Random();
+    static int totalScore = 0;
+    static int totalRounds = 0;
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+    public static void main(String[] args) {
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+        System.out.println("=======================================================");
+        System.out.println("            NUMBER GUESSING GAME");
+        System.out.println("=======================================================");
+        System.out.println("  Guess the secret number and earn points!");
+        System.out.println("=======================================================");
+        System.out.println();
+
+        System.out.print("Enter your name: ");
+        String playerName = scanner.nextLine().trim();
+
+        System.out.println("\nWelcome, " + playerName + "! Let's play!");
+        System.out.println("=======================================================");
+
+        boolean playAgain = true;
+
+        while (playAgain) {
+
+            System.out.println("\nChoose Difficulty:");
+            System.out.println("  1 - Easy   : 1 to 50,  10 attempts, +10 pts");
+            System.out.println("  2 - Medium : 1 to 100,  7 attempts, +20 pts");
+            System.out.println("  3 - Hard   : 1 to 200,  5 attempts, +50 pts");
+            System.out.print("Enter choice (1 / 2 / 3): ");
+
+            int difficulty = 2;
+            while (true) {
+                String input = scanner.nextLine().trim();
+                if (input.equals("1") || input.equals("2") || input.equals("3")) {
+                    difficulty = Integer.parseInt(input);
+                    break;
+                }
+                System.out.print("Please enter 1, 2 or 3: ");
+            }
+
+            int maxNumber;
+            int maxAttempts;
+            int basePoints;
+
+            if (difficulty == 1) {
+                maxNumber = 50;
+                maxAttempts = 10;
+                basePoints = 10;
+            } else if (difficulty == 3) {
+                maxNumber = 200;
+                maxAttempts = 5;
+                basePoints = 50;
+            } else {
+                maxNumber = 100;
+                maxAttempts = 7;
+                basePoints = 20;
+            }
+
+            totalRounds++;
+            int secretNumber = random.nextInt(maxNumber) + 1;
+            int attemptsUsed = 0;
+            boolean won = false;
+
+            System.out.println("\n-------------------------------------------------------");
+            System.out.println("  ROUND " + totalRounds + "  |  Guess a number from 1 to " + maxNumber);
+            System.out.println("  You have " + maxAttempts + " attempts. Good luck!");
+            System.out.println("-------------------------------------------------------");
+
+            while (attemptsUsed < maxAttempts) {
+
+                int remaining = maxAttempts - attemptsUsed;
+                System.out.print("Attempt " + (attemptsUsed + 1) + "/" + maxAttempts + "  (" + remaining + " left)  Your guess: ");
+
+                String line = scanner.nextLine().trim();
+                int guess;
+
+                try {
+                    guess = Integer.parseInt(line);
+                } catch (NumberFormatException e) {
+                    System.out.println("  Not a valid number. Try again.");
+                    continue;
+                }
+
+                if (guess < 1 || guess > maxNumber) {
+                    System.out.println("  Enter a number between 1 and " + maxNumber + ".");
+                    continue;
+                }
+
+                attemptsUsed++;
+
+                if (guess == secretNumber) {
+                    won = true;
+                    double ratio = 1.0 - ((double)(attemptsUsed - 1) / maxAttempts);
+                    int earned = basePoints + (int)(basePoints * ratio);
+                    totalScore += earned;
+                    System.out.println("\n  CORRECT! The number was " + secretNumber + ".");
+                    System.out.println("  Guessed in " + attemptsUsed + " attempt(s).");
+                    System.out.println("  Points earned : +" + earned);
+                    System.out.println("  Total score   : " + totalScore);
+                    break;
+
+                } else if (guess < secretNumber) {
+                    System.out.println("  Too LOW!  Try a higher number.");
+                    if (secretNumber - guess > maxNumber / 4) {
+                        System.out.println("  Hint: The number is much higher.");
+                    } else {
+                        System.out.println("  Hint: Getting closer!");
+                    }
+                } else {
+                    System.out.println("  Too HIGH! Try a lower number.");
+                    if (guess - secretNumber > maxNumber / 4) {
+                        System.out.println("  Hint: The number is much lower.");
+                    } else {
+                        System.out.println("  Hint: Getting closer!");
+                    }
+                }
+            }
+
+            if (!won) {
+                System.out.println("\n  Out of attempts! The secret number was: " + secretNumber);
+                System.out.println("  Better luck next time!");
+            }
+
+            System.out.print("\nPlay another round? (yes / no): ");
+            String answer = scanner.nextLine().trim().toLowerCase();
+            playAgain = answer.equals("yes") || answer.equals("y");
+        }
+
+        System.out.println("\n=======================================================");
+        System.out.println("  FINAL STATS FOR " + playerName.toUpperCase());
+        System.out.println("=======================================================");
+        System.out.println("  Rounds played : " + totalRounds);
+        System.out.println("  Total score   : " + totalScore + " pts");
+
+        if (totalScore >= 100) {
+            System.out.println("  Rank : MASTER GUESSER  - Outstanding!");
+        } else if (totalScore >= 50) {
+            System.out.println("  Rank : PRO GUESSER     - Well done!");
+        } else if (totalScore >= 20) {
+            System.out.println("  Rank : AMATEUR GUESSER - Keep practicing!");
+        } else {
+            System.out.println("  Rank : BEGINNER        - Try harder next time!");
+        }
+
+        System.out.println("=======================================================");
+        System.out.println("\nThanks for playing, " + playerName + "! Goodbye!");
+
+        scanner.close();
+    }
+}
